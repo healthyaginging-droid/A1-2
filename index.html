@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 訓練營｜AI 怎麼學習？</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF8EE;
+    --pink:#FF8FA8;
+    --pink-deep:#FF6B93;
+    --sky:#5EC4E8;
+    --sky-deep:#3AAAD1;
+    --yellow:#FFC94D;
+    --green:#66C08B;
+    --green-deep:#4CAA72;
+    --purple:#B99CE8;
+    --ink:#2E2A3B;
+    --ink-soft:#6E6885;
+    --card:#FFFFFF;
+    --shadow: 0 10px 0 rgba(46,42,59,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 15%, #FFEFD1 0%, transparent 45%),
+      radial-gradient(circle at 88% 20%, #D8F3FF 0%, transparent 40%),
+      radial-gradient(circle at 20% 90%, #FFE1EB 0%, transparent 45%),
+      var(--cream);
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:24px 14px 60px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .stage{width:100%; max-width:540px;}
+
+  header{text-align:center; margin-bottom:14px;}
+  .brand{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); padding:8px 18px 8px 10px; border-radius:999px;
+    box-shadow:var(--shadow); border:3px solid var(--ink);
+  }
+  .brand .badge{
+    width:34px;height:34px;border-radius:50%; background:var(--yellow);
+    display:flex;align-items:center;justify-content:center; font-size:18px; border:3px solid var(--ink);
+  }
+  .brand span{font-family:'Baloo 2', sans-serif; font-weight:800; font-size:16px;}
+  h1{font-family:'Baloo 2', sans-serif; font-size:clamp(22px,6vw,30px); margin:14px 0 4px; font-weight:800; text-align:center;}
+  .subtitle{color:var(--ink-soft); font-size:14px; font-weight:600; text-align:center;}
+
+  /* pipeline tracker */
+  .pipeline{
+    display:flex; justify-content:center; gap:6px; margin:18px 0 8px; flex-wrap:wrap;
+  }
+  .pipe-step{
+    display:flex; align-items:center; gap:5px;
+    background:var(--card); border:3px solid var(--ink); border-radius:999px;
+    padding:6px 12px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12px;
+    color:var(--ink-soft); opacity:.55; transition:all .3s ease;
+  }
+  .pipe-step.active{opacity:1; background:var(--yellow); transform:scale(1.06);}
+  .pipe-step.done{opacity:1; background:var(--green); color:#fff;}
+
+  .mascot-row{display:flex; justify-content:center; margin:16px 0 6px;}
+  #mascot{width:88px;height:88px; transition:transform .35s cubic-bezier(.68,-0.4,.27,1.55);}
+  .bubble{
+    max-width:380px; margin:0 auto 4px; background:var(--card); border:3px solid var(--ink);
+    border-radius:18px; padding:10px 16px; font-weight:700; font-size:14px; text-align:center;
+    min-height:20px; box-shadow:var(--shadow);
+  }
+
+  .panel{
+    background:var(--card); border:4px solid var(--ink); border-radius:26px;
+    padding:22px 20px; margin-top:16px; box-shadow:var(--shadow);
+  }
+  .hidden{display:none !important;}
+
+  /* Intro phase */
+  .steps4{display:flex; flex-direction:column; gap:10px; margin:16px 0;}
+  .step4-row{
+    display:flex; align-items:center; gap:12px; background:var(--cream);
+    border:3px solid var(--ink); border-radius:16px; padding:10px 14px;
+  }
+  .step4-row .num{
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:16px;
+    width:30px;height:30px;border-radius:50%; background:var(--pink); color:#fff;
+    display:flex;align-items:center;justify-content:center; border:3px solid var(--ink); flex-shrink:0;
+  }
+  .step4-row b{font-family:'Baloo 2', sans-serif; font-size:14px;}
+  .step4-row p{margin:2px 0 0; font-size:12.5px; color:var(--ink-soft); font-weight:600;}
+
+  .cta-btn{
+    display:block; margin:20px auto 0; font-family:'Baloo 2', sans-serif; font-weight:800;
+    font-size:16px; background:var(--yellow); border:4px solid var(--ink); border-radius:18px;
+    padding:14px 32px; cursor:pointer; box-shadow:0 6px 0 rgba(46,42,59,0.18);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .cta-btn:active{transform:translateY(4px); box-shadow:0 2px 0 rgba(46,42,59,0.18);}
+  .cta-btn:disabled{opacity:.4; cursor:default;}
+
+  /* Data collection phase */
+  .dataset-meter{
+    display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:12px;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px;
+  }
+  .dataset-meter .track{
+    width:150px; height:14px; background:var(--cream); border:3px solid var(--ink);
+    border-radius:999px; overflow:hidden;
+  }
+  .dataset-meter .fill{height:100%; background:var(--green); width:0%; transition:width .4s ease;}
+
+  .item-card{
+    text-align:center; margin:6px auto 18px;
+  }
+  .item-card .emoji{font-size:70px;}
+  .item-card .name{font-family:'Baloo 2', sans-serif; font-weight:800; font-size:20px; margin-top:4px;}
+
+  .buckets{display:flex; gap:14px; justify-content:center;}
+  .bucket-btn{
+    flex:1; max-width:150px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:15px;
+    padding:16px 8px; border-radius:18px; border:4px solid var(--ink); cursor:pointer; color:var(--ink);
+    box-shadow:0 6px 0 rgba(46,42,59,0.18); transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .bucket-btn:active{transform:translateY(4px); box-shadow:0 2px 0 rgba(46,42,59,0.18);}
+  .bucket-btn.fruit{background:var(--pink);}
+  .bucket-btn.veg{background:var(--green);}
+  .bucket-btn .bicon{font-size:26px; display:block; margin-bottom:2px;}
+
+  .feedback-msg{
+    text-align:center; font-weight:700; font-size:13px; min-height:20px; margin-top:12px; color:var(--ink-soft);
+  }
+
+  /* pattern reveal */
+  .pattern-list{display:flex; flex-direction:column; gap:8px; margin:14px 0;}
+  .pattern-row{
+    display:flex; align-items:center; gap:10px; background:var(--cream); border:3px solid var(--ink);
+    border-radius:14px; padding:8px 14px; font-weight:700; font-size:13.5px;
+  }
+  .pattern-row .tag{
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:12px; padding:3px 10px; border-radius:999px;
+    color:#fff; flex-shrink:0;
+  }
+  .tag.fruit{background:var(--pink-deep);}
+  .tag.veg{background:var(--green-deep);}
+
+  .loader-wrap{text-align:center; margin:26px 0;}
+  .spinner{
+    width:56px;height:56px; margin:0 auto 14px; border:6px solid var(--cream); border-top:6px solid var(--pink);
+    border-radius:50%; animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* prediction test */
+  .test-card{
+    display:flex; flex-direction:column; align-items:center; gap:6px; margin:8px 0 16px;
+  }
+  .test-card .emoji{font-size:70px;}
+  .test-card .name{font-family:'Baloo 2', sans-serif; font-weight:800; font-size:20px;}
+  .test-card .feat{font-size:12px; color:var(--ink-soft); font-weight:700;}
+
+  .predict-result{
+    background:var(--cream); border:3px solid var(--ink); border-radius:16px; padding:14px; margin-top:10px;
+  }
+  .predict-row{display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; font-family:'Baloo 2', sans-serif; font-size:15px;}
+  .predict-explain{font-size:12.5px; color:var(--ink-soft); font-weight:600; text-align:center; margin-top:8px; line-height:1.5;}
+  .verdict-icon{font-size:22px;}
+
+  .score-strip{
+    display:flex; justify-content:center; gap:14px; margin:14px 0 0;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:13px;
+  }
+  .score-strip div{background:var(--cream); border:3px solid var(--ink); border-radius:14px; padding:5px 12px;}
+
+  /* rule design phase */
+  .rule-toggle{
+    display:flex; gap:12px; justify-content:center; margin:16px 0;
+  }
+  .rule-btn{
+    flex:1; max-width:160px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px;
+    padding:14px 10px; border-radius:16px; border:4px solid var(--ink); cursor:pointer; color:var(--ink);
+    background:var(--card); box-shadow:0 5px 0 rgba(46,42,59,0.15); transition:transform .08s ease;
+  }
+  .rule-btn.selected{background:var(--sky); box-shadow:0 5px 0 rgba(46,42,59,0.25);}
+  .rule-btn:active{transform:translateY(3px);}
+
+  .bar-compare{margin:20px 0 6px;}
+  .bar-row{margin-bottom:14px;}
+  .bar-label{font-weight:700; font-size:13px; margin-bottom:4px; display:flex; justify-content:space-between;}
+  .bar-track{height:20px; background:var(--cream); border:3px solid var(--ink); border-radius:999px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:999px; transition:width .6s ease; display:flex; align-items:center; justify-content:flex-end;}
+  .bar-fill.color-rule{background:var(--purple);}
+  .bar-fill.shape-rule{background:var(--sky-deep);}
+
+  .mini-result-grid{display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap;}
+  .mini-chip{
+    background:var(--cream); border:3px solid var(--ink); border-radius:12px; padding:6px 10px;
+    font-size:20px; text-align:center; position:relative;
+  }
+  .mini-chip .mark{position:absolute; top:-8px; right:-8px; font-size:15px;}
+
+  /* end screen */
+  .end-screen{text-align:center;}
+  .end-screen .big-emoji{font-size:60px; margin-bottom:4px;}
+  .end-screen h2{font-family:'Baloo 2', sans-serif; font-size:22px; margin:6px 0;}
+  .end-screen p{color:var(--ink-soft); font-weight:600; font-size:13.5px; line-height:1.6;}
+
+  footer{text-align:center; margin-top:26px; font-size:12px; color:var(--ink-soft); font-weight:600;}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important;}}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <header>
+    <div class="brand">
+      <div class="badge">🎓</div>
+      <span>AI 訓練營</span>
+    </div>
+    <h1>AI 怎麼學習？</h1>
+    <div class="subtitle">資料 → 學習 → 找規律 → 預測</div>
+  </header>
+
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-step" data-p="0">1️⃣ 資料</div>
+    <div class="pipe-step" data-p="1">2️⃣ 學習</div>
+    <div class="pipe-step" data-p="2">3️⃣ 規律</div>
+    <div class="pipe-step" data-p="3">4️⃣ 預測</div>
+    <div class="pipe-step" data-p="4">5️⃣ 設計規則</div>
+  </div>
+
+  <div class="mascot-row">
+    <svg id="mascot" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="90" rx="26" ry="6" fill="#00000012"/>
+      <rect x="30" y="34" width="40" height="34" rx="12" fill="#FFC94D" stroke="#2E2A3B" stroke-width="4"/>
+      <circle cx="50" cy="20" r="18" fill="#FFFFFF" stroke="#2E2A3B" stroke-width="4"/>
+      <circle cx="43" cy="19" r="3.4" fill="#2E2A3B" id="eyeL"/>
+      <circle cx="57" cy="19" r="3.4" fill="#2E2A3B" id="eyeR"/>
+      <path d="M43 27 Q50 32 57 27" stroke="#2E2A3B" stroke-width="3" fill="none" stroke-linecap="round" id="mouth"/>
+      <rect x="47" y="2" width="6" height="10" rx="3" fill="#2E2A3B"/>
+      <circle cx="50" cy="3" r="4" fill="#FF6B93" stroke="#2E2A3B" stroke-width="2.5"/>
+      <rect x="16" y="42" width="14" height="9" rx="4" fill="#5EC4E8" stroke="#2E2A3B" stroke-width="3.5"/>
+      <rect x="70" y="42" width="14" height="9" rx="4" fill="#5EC4E8" stroke="#2E2A3B" stroke-width="3.5"/>
+    </svg>
+  </div>
+  <div class="bubble" id="bubble">歡迎來到 AI 訓練營！讓我們一起教電腦學會分類吧 🌟</div>
+
+  <!-- PHASE 0: INTRO -->
+  <div class="panel" id="phase-intro">
+    <div class="steps4">
+      <div class="step4-row"><div class="num">1</div><div><b>資料 Dataset</b><p>蒐集很多有標記答案的例子，像是「這是水果」「這是蔬菜」。</p></div></div>
+      <div class="step4-row"><div class="num">2</div><div><b>學習 Training</b><p>AI 把這些例子全部看過一遍，努力找出裡面的規律。</p></div></div>
+      <div class="step4-row"><div class="num">3</div><div><b>規律 Pattern</b><p>AI 發現：「長長的通常是蔬菜」「紅色的通常是水果」之類的線索。</p></div></div>
+      <div class="step4-row"><div class="num">4</div><div><b>預測 Prediction</b><p>看到新的東西時，AI 用學到的規律來「猜」答案。</p></div></div>
+    </div>
+    <button class="cta-btn" id="btn-start">🚀 開始訓練 AI</button>
+  </div>
+
+  <!-- PHASE 1: DATA COLLECTION -->
+  <div class="panel hidden" id="phase-data">
+    <div class="dataset-meter">
+      📦 訓練資料集：<div class="track"><div class="fill" id="dataset-fill"></div></div>
+      <span id="dataset-count">0</span>/<span id="dataset-total">8</span>
+    </div>
+    <div class="item-card">
+      <div class="emoji" id="data-emoji">🍎</div>
+      <div class="name" id="data-name">蘋果</div>
+    </div>
+    <div class="buckets">
+      <button class="bucket-btn fruit" id="btn-fruit"><span class="bicon">🍎</span>水果</button>
+      <button class="bucket-btn veg" id="btn-veg"><span class="bicon">🥦</span>蔬菜</button>
+    </div>
+    <div class="feedback-msg" id="data-feedback"></div>
+  </div>
+
+  <!-- PHASE 2: TRAINING ANIMATION -->
+  <div class="panel hidden" id="phase-training">
+    <div class="loader-wrap">
+      <div class="spinner"></div>
+      <div style="font-family:'Baloo 2',sans-serif; font-weight:800; font-size:16px;">AI 正在尋找規律中...</div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: PATTERN REVEAL -->
+  <div class="panel hidden" id="phase-pattern">
+    <div style="font-family:'Baloo 2',sans-serif; font-weight:800; font-size:16px; text-align:center; margin-bottom:10px;">
+      🔍 AI 從顏色中發現的規律
+    </div>
+    <div class="pattern-list" id="pattern-list"></div>
+    <button class="cta-btn" id="btn-to-test">👉 來測試 AI 猜得準不準！</button>
+  </div>
+
+  <!-- PHASE 4: PREDICTION TEST -->
+  <div class="panel hidden" id="phase-test">
+    <div class="score-strip">
+      <div>🎯 題目 <span id="test-index">1</span>/<span id="test-total">4</span></div>
+      <div>✅ 猜對 <span id="test-score">0</span></div>
+    </div>
+    <div class="test-card">
+      <div class="emoji" id="test-emoji">🍓</div>
+      <div class="name" id="test-name">草莓</div>
+      <div class="feat" id="test-feat">顏色：紅色</div>
+    </div>
+    <button class="cta-btn" id="btn-guess">🤖 AI 猜猜看！</button>
+    <div class="predict-result hidden" id="predict-result">
+      <div class="predict-row"><span class="verdict-icon" id="verdict-icon"></span><span id="predict-text"></span></div>
+      <div class="predict-explain" id="predict-explain"></div>
+    </div>
+    <button class="cta-btn hidden" id="btn-test-next">下一題 →</button>
+  </div>
+
+  <!-- PHASE 5: RULE DESIGN -->
+  <div class="panel hidden" id="phase-rule">
+    <div style="font-family:'Baloo 2',sans-serif; font-weight:800; font-size:16px; text-align:center; margin-bottom:6px;">
+      🛠️ 換你設計 AI 的分類規則！
+    </div>
+    <p style="text-align:center; font-size:13px; color:var(--ink-soft); font-weight:600; margin-top:0;">
+      同一批訓練資料，如果 AI 改用「形狀」來判斷，猜對的機率會不會不一樣呢？
+    </p>
+    <div class="rule-toggle">
+      <button class="rule-btn selected" id="rule-color" data-rule="color">🎨 用顏色判斷</button>
+      <button class="rule-btn" id="rule-shape" data-rule="shape">📐 用形狀判斷</button>
+    </div>
+    <div class="bar-compare">
+      <div class="bar-row">
+        <div class="bar-label"><span>🎨 顏色規則</span><span id="color-acc-label">0/4</span></div>
+        <div class="bar-track"><div class="bar-fill color-rule" id="color-bar" style="width:0%"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span>📐 形狀規則</span><span id="shape-acc-label">0/4</span></div>
+        <div class="bar-track"><div class="bar-fill shape-rule" id="shape-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="mini-result-grid" id="mini-result-grid"></div>
+    <div class="bubble" id="rule-bubble" style="margin-top:16px;">按按看上面兩個按鈕，比較看看哪個規則比較聰明！</div>
+    <button class="cta-btn" id="btn-finish">🏁 完成挑戰</button>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="panel end-screen hidden" id="phase-end">
+    <div class="big-emoji">🏆</div>
+    <h2>你完成了一整套 AI 訓練流程！</h2>
+    <p id="end-summary"></p>
+    <p style="margin-top:10px;">記住：<b>好的資料</b>和<b>好的規則</b>，才能讓 AI 猜得更準確喔！</p>
+    <button class="cta-btn" id="btn-restart">🔁 再訓練一次</button>
+  </div>
+
+  <footer>小提醒：AI 沒有「常識」，它只能從你給的資料裡找規律 —— 資料不同，AI 學到的東西也會不同！</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ---- Data ----
+const TRAIN = [
+  {emoji:"🍎", name:"蘋果",   label:"水果", color:"紅色", shape:"圓形"},
+  {emoji:"🍌", name:"香蕉",   label:"水果", color:"黃色", shape:"長形"},
+  {emoji:"🍊", name:"橘子",   label:"水果", color:"橘色", shape:"圓形"},
+  {emoji:"🍇", name:"葡萄",   label:"水果", color:"紫色", shape:"圓形"},
+  {emoji:"🥕", name:"紅蘿蔔", label:"蔬菜", color:"橘色", shape:"長形"},
+  {emoji:"🥦", name:"花椰菜", label:"蔬菜", color:"綠色", shape:"葉狀"},
+  {emoji:"🥬", name:"高麗菜", label:"蔬菜", color:"綠色", shape:"葉狀"},
+  {emoji:"🥒", name:"小黃瓜", label:"蔬菜", color:"綠色", shape:"長形"},
+];
+
+const TEST = [
+  {emoji:"🍓", name:"草莓", label:"水果", color:"紅色", shape:"圓形"},
+  {emoji:"🌽", name:"玉米", label:"蔬菜", color:"黃色", shape:"長形"},
+  {emoji:"🍉", name:"西瓜", label:"水果", color:"綠色", shape:"圓形"},
+  {emoji:"🍆", name:"茄子", label:"蔬菜", color:"紫色", shape:"長形"},
+];
+
+const LABEL_EMOJI = {"水果":"🍎", "蔬菜":"🥦"};
+
+let dataIdx = 0;
+let dataset = []; // {..item, chosenLabel}
+let colorPattern = {}, shapePattern = {};
+let testIdx = 0;
+let testScore = 0;
+let currentRule = "color";
+let ruleResults = { color: null, shape: null }; // {correctCount, details:[]}
+
+function setMascot(state){
+  const mouth = $('mouth'), mascot = $('mascot');
+  if(state==='happy'){ mouth.setAttribute('d','M43 26 Q50 34 57 26'); mascot.style.transform='rotate(-6deg) scale(1.06)'; }
+  else if(state==='oops'){ mouth.setAttribute('d','M43 30 Q50 24 57 30'); mascot.style.transform='rotate(6deg) scale(0.96)'; }
+  else if(state==='think'){ mouth.setAttribute('d','M45 29 Q50 29 55 29'); mascot.style.transform='rotate(0deg) scale(1.02)'; }
+  else { mouth.setAttribute('d','M43 27 Q50 32 57 27'); mascot.style.transform='rotate(0deg) scale(1)'; }
+}
+
+function setPipeline(activeIdx, doneUpto){
+  document.querySelectorAll('.pipe-step').forEach(el=>{
+    const p = parseInt(el.dataset.p);
+    el.classList.toggle('active', p===activeIdx);
+    el.classList.toggle('done', p < activeIdx || p <= doneUpto);
+  });
+}
+
+function showPhase(id){
+  ['phase-intro','phase-data','phase-training','phase-pattern','phase-test','phase-rule','phase-end']
+    .forEach(p => $(p).classList.toggle('hidden', p!==id));
+}
+
+// ---- PHASE 0 -> 1 ----
+$('btn-start').addEventListener('click', ()=>{
+  showPhase('phase-data');
+  setPipeline(0,-1);
+  $('bubble').textContent = '幫我把這些東西分類，建立我們的訓練資料集吧！';
+  setMascot('neutral');
+  loadDataItem();
+});
+
+function loadDataItem(){
+  $('dataset-total').textContent = TRAIN.length;
+  $('dataset-count').textContent = dataset.length;
+  $('dataset-fill').style.width = (dataset.length/TRAIN.length*100)+'%';
+  if(dataIdx >= TRAIN.length){
+    startTraining();
+    return;
+  }
+  const item = TRAIN[dataIdx];
+  $('data-emoji').textContent = item.emoji;
+  $('data-name').textContent = item.name;
+  $('data-feedback').textContent = '';
+}
+
+function classifyData(chosen){
+  const item = TRAIN[dataIdx];
+  const correct = (chosen === item.label);
+  dataset.push({...item, chosenLabel: chosen});
+  if(correct){
+    setMascot('happy');
+    $('data-feedback').textContent = '✅ 分類正確！已加入訓練資料集';
+  } else {
+    setMascot('oops');
+    $('data-feedback').textContent = `🤔 提醒：${item.name} 其實是「${item.label}」喔，不過我們還是先記錄下你的答案！`;
+  }
+  dataIdx++;
+  setTimeout(()=>{ loadDataItem(); }, correct ? 500 : 1400);
+}
+
+$('btn-fruit').addEventListener('click', ()=>classifyData('水果'));
+$('btn-veg').addEventListener('click', ()=>classifyData('蔬菜'));
+
+// ---- PHASE 2: training ----
+function startTraining(){
+  showPhase('phase-training');
+  setPipeline(1,0);
+  $('bubble').textContent = 'AI 正在把資料集裡的規律找出來...';
+  setMascot('think');
+  setTimeout(()=>{
+    computePatterns();
+    revealPatterns();
+  }, 1800);
+}
+
+function computePatterns(){
+  colorPattern = majorityByFeature('color');
+  shapePattern = majorityByFeature('shape');
+}
+
+function majorityByFeature(featureKey){
+  const groups = {};
+  dataset.forEach(d=>{
+    const key = d[featureKey];
+    if(!groups[key]) groups[key] = {"水果":0, "蔬菜":0};
+    groups[key][d.chosenLabel]++;
+  });
+  const pattern = {};
+  Object.keys(groups).forEach(key=>{
+    const counts = groups[key];
+    pattern[key] = counts['水果'] >= counts['蔬菜'] ? '水果' : '蔬菜';
+  });
+  return pattern;
+}
+
+// ---- PHASE 3: pattern reveal ----
+function revealPatterns(){
+  showPhase('phase-pattern');
+  setPipeline(2,1);
+  $('bubble').textContent = '你看！AI 自己發現了這些規律耶 🔍';
+  setMascot('happy');
+  const list = $('pattern-list');
+  list.innerHTML = '';
+  Object.keys(colorPattern).forEach(color=>{
+    const label = colorPattern[color];
+    const row = document.createElement('div');
+    row.className = 'pattern-row';
+    row.innerHTML = `<span class="tag ${label==='水果'?'fruit':'veg'}">${label}</span> <span>訓練資料中，「${color}」的東西大部分都是 ${label}</span>`;
+    list.appendChild(row);
+  });
+}
+
+$('btn-to-test').addEventListener('click', ()=>{
+  showPhase('phase-test');
+  setPipeline(3,2);
+  $('bubble').textContent = '現在讓 AI 用學到的規律，來猜猜沒看過的新東西吧！';
+  setMascot('neutral');
+  testIdx = 0; testScore = 0;
+  loadTestItem();
+});
+
+// ---- PHASE 4: prediction test (default: color rule) ----
+function loadTestItem(){
+  $('test-total').textContent = TEST.length;
+  if(testIdx >= TEST.length){
+    ruleResults.color = { correctCount: testScore, details: lastRunDetails };
+    goToRulePhase();
+    return;
+  }
+  const item = TEST[testIdx];
+  $('test-index').textContent = testIdx+1;
+  $('test-score').textContent = testScore;
+  $('test-emoji').textContent = item.emoji;
+  $('test-name').textContent = item.name;
+  $('test-feat').textContent = `顏色：${item.color}　形狀：${item.shape}`;
+  $('predict-result').classList.add('hidden');
+  $('btn-guess').classList.remove('hidden');
+  $('btn-test-next').classList.add('hidden');
+}
+
+let lastRunDetails = [];
+
+$('btn-guess').addEventListener('click', ()=>{
+  const item = TEST[testIdx];
+  const prediction = colorPattern[item.color] || '不知道';
+  const correct = prediction === item.label;
+  if(correct) testScore++;
+  lastRunDetails.push({item, prediction, correct, feature:'color'});
+
+  $('verdict-icon').textContent = correct ? '✅' : '❌';
+  $('predict-text').textContent = `AI 猜：${LABEL_EMOJI[prediction]||'❓'} ${prediction}`;
+  let explain = `因為訓練資料中，「${item.color}」的東西大部分被標記成 ${prediction}，所以 AI 也這樣猜。`;
+  if(!correct){
+    explain += ` 但 ${item.name} 實際上是「${item.label}」——AI 猜錯了！這就是「錯誤 Error」，代表只看顏色不一定準確。`;
+    setMascot('oops');
+  } else {
+    explain += ` 這次猜對了！`;
+    setMascot('happy');
+  }
+  $('predict-explain').textContent = explain;
+  $('predict-result').classList.remove('hidden');
+  $('btn-guess').classList.add('hidden');
+  $('btn-test-next').classList.remove('hidden');
+  $('test-score').textContent = testScore;
+});
+
+$('btn-test-next').addEventListener('click', ()=>{
+  testIdx++;
+  loadTestItem();
+});
+
+// ---- PHASE 5: rule design ----
+function goToRulePhase(){
+  showPhase('phase-rule');
+  setPipeline(4,3);
+  $('bubble').textContent = '厲害！現在換你當 AI 設計師，試試不同的規則吧！';
+  setMascot('happy');
+  currentRule = 'color';
+  updateRuleUI();
+  runRule('shape'); // precompute shape results too, silently
+}
+
+function runRule(ruleKey){
+  const pattern = ruleKey === 'color' ? colorPattern : shapePattern;
+  let correctCount = 0;
+  const details = [];
+  TEST.forEach(item=>{
+    const featVal = ruleKey === 'color' ? item.color : item.shape;
+    const prediction = pattern[featVal] || '不知道';
+    const correct = prediction === item.label;
+    if(correct) correctCount++;
+    details.push({item, prediction, correct});
+  });
+  ruleResults[ruleKey] = { correctCount, details };
+  return ruleResults[ruleKey];
+}
+
+function updateRuleUI(){
+  $('rule-color').classList.toggle('selected', currentRule==='color');
+  $('rule-shape').classList.toggle('selected', currentRule==='shape');
+
+  if(!ruleResults.color) runRule('color');
+  if(!ruleResults.shape) runRule('shape');
+
+  const cAcc = ruleResults.color.correctCount;
+  const sAcc = ruleResults.shape.correctCount;
+  $('color-acc-label').textContent = cAcc+'/'+TEST.length;
+  $('shape-acc-label').textContent = sAcc+'/'+TEST.length;
+  $('color-bar').style.width = (cAcc/TEST.length*100)+'%';
+  $('shape-bar').style.width = (sAcc/TEST.length*100)+'%';
+
+  const active = ruleResults[currentRule];
+  const grid = $('mini-result-grid');
+  grid.innerHTML = '';
+  active.details.forEach(d=>{
+    const chip = document.createElement('div');
+    chip.className = 'mini-chip';
+    chip.innerHTML = `${d.item.emoji}<span class="mark">${d.correct?'✅':'❌'}</span>`;
+    grid.appendChild(chip);
+  });
+
+  if(cAcc === sAcc){
+    $('rule-bubble').textContent = '兩種規則猜對的題數一樣多，你觀察到哪裡不一樣了嗎？';
+  } else if(currentRule==='shape' && sAcc > cAcc){
+    $('rule-bubble').textContent = '發現了嗎？「形狀」規則猜對比較多！同樣的資料，換一個規則，AI 就變聰明了！';
+  } else if(currentRule==='color' && cAcc < sAcc){
+    $('rule-bubble').textContent = '顏色規則猜錯比較多喔，試試看點選「用形狀判斷」，看看會不會更準！';
+  } else {
+    $('rule-bubble').textContent = '按按看上面兩個按鈕，比較看看哪個規則比較聰明！';
+  }
+}
+
+$('rule-color').addEventListener('click', ()=>{ currentRule='color'; updateRuleUI(); });
+$('rule-shape').addEventListener('click', ()=>{ currentRule='shape'; updateRuleUI(); });
+
+// ---- END ----
+$('btn-finish').addEventListener('click', ()=>{
+  showPhase('phase-end');
+  setPipeline(5,4);
+  const cAcc = ruleResults.color.correctCount, sAcc = ruleResults.shape.correctCount;
+  const total = TEST.length;
+  let summary = `使用「顏色規則」，AI 猜對了 ${cAcc}/${total} 題；使用「形狀規則」，AI 猜對了 ${sAcc}/${total} 題。`;
+  if(sAcc !== cAcc){
+    const better = sAcc > cAcc ? '形狀' : '顏色';
+    summary += ` 在這批資料裡，用「${better}」規則的 AI 比較聰明！`;
+  } else {
+    summary += ' 這次兩種規則表現一樣好！';
+  }
+  $('end-summary').textContent = summary;
+});
+
+$('btn-restart').addEventListener('click', ()=>{
+  dataIdx = 0; dataset = []; testIdx = 0; testScore = 0; lastRunDetails = [];
+  ruleResults = { color:null, shape:null }; currentRule='color';
+  colorPattern = {}; shapePattern = {};
+  showPhase('phase-intro');
+  setPipeline(-1,-1);
+  $('bubble').textContent = '歡迎來到 AI 訓練營！讓我們一起教電腦學會分類吧 🌟';
+  setMascot('neutral');
+});
+
+// init
+setPipeline(-1,-1);
+</script>
+</body>
+</html>
